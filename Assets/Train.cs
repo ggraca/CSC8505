@@ -3,37 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Train : MonoBehaviour {
-	private float speed = 2.0f;
-	private bool canRotate = false;
-	protected int dir = 0;
+	protected float speed = 4.0f;
 
-	private float detectionRadius = 0.05f;
-	private int mapSize = 4;
+	protected float detectionRadius = 0.1f;
+	protected int mapSize = 4;
 
-	void Start () {}
-	
-	void Update () {
-	}
+	public Vector3 target;
 
 	protected void updatePosition() {
-		transform.position += transform.forward * speed * Time.deltaTime;
-		bool mi = meetsIntersection();
-		if (canRotate && mi) {
-			if (dir == 2) dir = 0;
-			transform.eulerAngles += new Vector3(0, 90 * dir, 0);
-			transform.position = new Vector3(
-				Mathf.Round(transform.position.x),
-				transform.position.y,
-				Mathf.Round(transform.position.z)
-			);
-			canRotate = false;
-			dir = 0;
-		} else if (!canRotate && !mi) {
-			canRotate = true;
-		}
+		if (target == null) return;
+		transform.position = Vector3.MoveTowards(transform.position, target, Time.deltaTime * speed);
+		transform.LookAt(target);
 	}
 
-	bool meetsIntersection() {
+	protected bool meetsIntersection() {
 		int xint = (int) Mathf.Round(transform.position.x);
 		int zint = (int) Mathf.Round(transform.position.z);
 
