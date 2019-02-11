@@ -56,7 +56,7 @@ public class Locomotive : Train {
 	}
 
 	void OnCollisionEnter (Collision col) {
-        if(col.gameObject.tag == "Cart") {
+        if(col.gameObject.tag == "Cart" && col.gameObject.GetComponent<Carriage>().frontCarriage != gameObject) {
 			AddCart(col.gameObject);
             col.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
 			col.gameObject.GetComponent<Rigidbody>().AddExplosionForce(400, col.contacts[0].point, 10, 10);

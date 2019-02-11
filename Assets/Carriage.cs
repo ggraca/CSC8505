@@ -13,16 +13,14 @@ public class Carriage : Train {
 	}
 	
 	void Update () {
+		if (transform.position.y > 1) return;
+
 		if (frontCarriage == null) {
 			adjustPosition();
 			return;
 		}
 
-		// Vector3 tpos = frontCarriage.transform.position - (frontCarriage.transform.forward * 0.6f);
-		// if (Vector3.Distance(transform.position, tpos) > 0.5f)
-		// 	target = frontCarriage.transform.position;
-		// else 
-		if (meetsIntersection())
+		if (meetsIntersection()) 
 			target = frontCarriage.GetComponent<Train>().target;
 			
 		updatePosition();
