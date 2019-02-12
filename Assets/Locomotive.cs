@@ -8,7 +8,7 @@ public class Locomotive : Train {
 	public GameObject cartPrefab;
 	private List<GameObject> cartList = new List<GameObject>();
 
-	private int dir = 0;
+	private int forceModifier = 1000;
 
 	void Start() {
 		transform.position = Vector3.zero;
@@ -18,18 +18,8 @@ public class Locomotive : Train {
 	}
 
 	void Update () {
-		if (meetsIntersection()) {
-			transform.eulerAngles += new Vector3(0, 90 * dir, 0);
-			dir = 0;
-			findTarget();
-		} else {
-			changeDir();
-		}
+		changeDir();
 		updatePosition();
-	}
-
-	void findTarget() {
-		target = transform.position + (transform.forward * mapSize);
 	}
 
 	void changeDir() {
@@ -39,29 +29,42 @@ public class Locomotive : Train {
 		if (Input.GetKey("left")) dir = 3;
 	}
 
-	void AddCart(GameObject newCart = null) {
-		GameObject last = (cartList.Count == 0) ? this.gameObject : cartList[cartList.Count - 1];
-		
-		Vector3 pos = last.transform.position - last.transform.forward * 0.6f;
-		Quaternion rot = last.transform.rotation;
-
-		if (newCart) {
-			if (cartList.Contains(newCart)) return;
-		} else {
-			newCart = Instantiate(cartPrefab, pos, rot);
-		}
-		
-		newCart.GetComponent<Carriage>().frontCarriage = last;
-		cartList.Add(newCart);
-	}
-
 	void OnCollisionEnter (Collision col) {
-        if(col.gameObject.tag == "Cart" && col.gameObject.GetComponent<Carriage>().frontCarriage != gameObject) {
+        if(col.gameObject.tag == "Cart" && col.gameObject.GetComponent<Train>().frontTrain != gameObject) {
+			col.gameObject.GetComponent<Train>().breakTrains();
 			AddCart(col.gameObject);
             col.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
-			col.gameObject.GetComponent<Rigidbody>().AddExplosionForce(400, col.contacts[0].point, 10, 10);
+			col.gameObject.GetComponent<Carriage>().trainState = TrainState.Flying;
+			col.gameObject.GetComponent<Rigidbody>().AddForce(transform.forward * 0.2f * forceModifier);
+			col.gameObject.GetComponent<Rigidbody>().AddForce(transform.up * 0.5f * forceModifier);
+			col.gameObject.GetComponent<Rigidbody>().AddForce(transform.right * Random.Range(-0.2f, 0.2f) * forceModifier);
         }
     }
 
-	
+	void AddCart(GameObject cart = null) {
+		GameObject lastCart = getLastCart();
+		
+		Vector3 pos = lastCart.transform.position - lastCart.transform.forward * 0.6f;
+		Quaternion rot = lastCart.transform.rotation;
+
+		if (!cart) cart = Instantiate(cartPrefab, pos, rot);
+		
+		joinTrains(lastCart, cart);
+	}
+
+	GameObject getLastCart() {
+		GameObject currentCart = gameObject;
+		while(currentCart.GetComponent<Train>().backTrain != null) {
+			currentCart = currentCart.GetComponent<Train>().backTrain;
+		}
+		return currentCart;
+	}
+
+	void joinTrains(GameObject front, GameObject back) {
+		//back.GetComponent<Train>().frontTrain.GetComponent<Train>().backTrain = null;
+		//front.GetComponent<Train>().backTrain.GetComponent<Train>().frontTrain = null;
+
+		back.GetComponent<Train>().frontTrain = front;
+		front.GetComponent<Train>().backTrain = back;
+	}
 }

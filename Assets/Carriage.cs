@@ -2,28 +2,69 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum TrainState {
+	Flying,
+	Adjusting,
+	Following,
+	CatchingUp
+}
+
 public class Carriage : Train {
-	public bool adjusting = false;
-	public GameObject frontCarriage;
+
+	public TrainState trainState;
 
 	private Vector3 targetPosition;
 	private Vector3 targetDirection;
 
-	void Start () {
-	}
+	protected float adjustingSpeed = 1.0f;
 	
+	void Start() {
+		if (frontTrain) trainState = TrainState.Following;
+		else trainState = TrainState.Adjusting;
+
+		GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+	}
+
 	void Update () {
-		if (transform.position.y > 1) return;
+		switch (trainState) {
+			case TrainState.Flying:
+				break;
 
-		if (frontCarriage == null) {
-			adjustPosition();
-			return;
+			case TrainState.Adjusting:
+				adjustPosition();
+				break;
+
+			case TrainState.Following:
+				if (!frontTrain) {
+					trainState = TrainState.Adjusting;
+					return;
+				}
+				updatePosition();
+				break;
+
+			case TrainState.CatchingUp:
+				if (!frontTrain) {
+					trainState = TrainState.Adjusting;
+					return;
+				}
+				target = frontTrain.transform.position - (frontTrain.transform.forward * 0.6f);
+				speed = 8;
+				updatePosition();
+
+				if (Vector3.Distance(transform.position, target) < 0.1f) {
+					transform.rotation = frontTrain.transform.rotation;
+					transform.position = target;
+					target = frontTrain.GetComponent<Train>().target;
+					//dir = frontTrain.GetComponent<Train>().dir;
+					speed = 4;
+
+					trainState = TrainState.Following;
+
+					Debug.Log("Start Following");
+				}
+				
+				break;
 		}
-
-		if (meetsIntersection()) 
-			target = frontCarriage.GetComponent<Train>().target;
-			
-		updatePosition();
 	}
 
 	void adjustPosition() {
@@ -37,10 +78,10 @@ public class Carriage : Train {
 			targetz = Mathf.Round(transform.position.z / mapSize) * mapSize;
 			targetDirection = Vector3.right;
 		}
-		targetPosition = new Vector3(targetx, transform.position.y, targetz);
+		targetPosition = new Vector3(targetx, 0, targetz);
 
-		transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * speed);
-		Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDirection, Time.deltaTime * speed, 0.0f);
+		transform.position = Vector3.MoveTowards(transform.position, targetPosition, Time.deltaTime * adjustingSpeed);
+		Vector3 newDir = Vector3.RotateTowards(transform.forward, targetDirection, Time.deltaTime * adjustingSpeed, 0.0f);
 		transform.rotation = Quaternion.LookRotation(newDir);
 	}
 
@@ -48,4 +89,21 @@ public class Carriage : Train {
 		float lambda = Mathf.Abs(pos / mapSize);
 		return Mathf.Abs((lambda % 1) - 0.5f);
 	}
+
+	void OnCollisionEnter (Collision col) {
+        if(col.gameObject.tag != "Floor") return;
+
+		if (frontTrain) trainState = TrainState.CatchingUp;
+		else trainState = TrainState.Adjusting;
+
+		GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
+
+		transform.position = new Vector3(
+			transform.position.x,
+			0,
+			transform.position.z
+		);
+		transform.rotation = Quaternion.identity;
+
+    }
 }
