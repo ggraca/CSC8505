@@ -50,17 +50,17 @@ public class Carriage : Train {
 				target = frontTrain.transform.position - (frontTrain.transform.forward * 0.6f);
 				speed = 8;
 				updatePosition();
-
+				
 				if (Vector3.Distance(transform.position, target) < 0.1f) {
+					if (frontTrain.GetComponent<Carriage>() && frontTrain.GetComponent<Carriage>().trainState != TrainState.Following) return;
+
 					transform.rotation = frontTrain.transform.rotation;
 					transform.position = target;
 					target = frontTrain.GetComponent<Train>().target;
-					//dir = frontTrain.GetComponent<Train>().dir;
+					dir = frontTrain.GetComponent<Train>().dir;
 					speed = 4;
 
 					trainState = TrainState.Following;
-
-					Debug.Log("Start Following");
 				}
 				
 				break;

@@ -22,9 +22,10 @@ public class Train : MonoBehaviour {
 
 	void OnTriggerEnter (Collider col) {
 		if (gameObject.GetComponent<Carriage>() != null && gameObject.GetComponent<Carriage>().trainState != TrainState.Following) return;
-
-        if(col.gameObject.tag == "Intersection") {
+        
+		if(col.gameObject.tag == "Intersection") {
 			if (backTrain) backTrain.GetComponent<Train>().dir = dir;
+			
 			if (dir != 0) {
 				transform.eulerAngles += new Vector3(0, 90 * dir, 0);
 				transform.position = getNextPosition(col.gameObject.transform.position);
