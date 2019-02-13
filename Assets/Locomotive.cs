@@ -6,27 +6,26 @@ public class Locomotive : Train {
 	[SerializeField]
 	private int size = 5;
 	public GameObject cartPrefab;
-	private List<GameObject> cartList = new List<GameObject>();
 
 	private int forceModifier = 1000;
 
+	private Player player;
+
 	void Start() {
-		transform.position = Vector3.zero;
+		player = GetComponent<Player>();
+
+		setColour(Player.colors[player.id]);
+		transform.position = Player.startingPositions[player.id];
 		transform.rotation = Quaternion.identity;
+		transform.Rotate(0, Player.startingRotations[player.id], 0);
+
 		findTarget();
+		dir = Vector3.zero;
 		for(int i = 0; i < size; i++) AddCart();
 	}
 
 	void Update () {
-		changeDir();
 		updatePosition();
-	}
-
-	void changeDir() {
-		if (Input.GetKey("down")) dir = 0;
-		if (Input.GetKey("right")) dir = 1;
-		if (Input.GetKey("up")) dir = 0;
-		if (Input.GetKey("left")) dir = 3;
 	}
 
 	void OnCollisionEnter (Collision col) {
@@ -50,6 +49,7 @@ public class Locomotive : Train {
 		if (!cart) cart = Instantiate(cartPrefab, pos, rot);
 		
 		joinTrains(lastCart, cart);
+		cart.GetComponent<Train>().setColour(Player.colors[player.id]);
 	}
 
 	GameObject getLastCart() {

@@ -19,7 +19,10 @@ public class Carriage : Train {
 	protected float adjustingSpeed = 1.0f;
 	
 	void Start() {
-		if (frontTrain) trainState = TrainState.Following;
+		if (frontTrain) {
+			trainState = TrainState.Following;
+			target = frontTrain.GetComponent<Train>().target;
+		}
 		else trainState = TrainState.Adjusting;
 
 		GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
