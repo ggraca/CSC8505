@@ -26,6 +26,7 @@ public class Locomotive : Train {
 
 	void Update () {
 		updatePosition();
+		updateScore();
 	}
 
 	void OnCollisionEnter (Collision col) {
@@ -50,6 +51,7 @@ public class Locomotive : Train {
 		
 		joinTrains(lastCart, cart);
 		cart.GetComponent<Train>().setColour(Player.colors[player.id]);
+
 	}
 
 	GameObject getLastCart() {
@@ -66,5 +68,15 @@ public class Locomotive : Train {
 
 		back.GetComponent<Train>().frontTrain = front;
 		front.GetComponent<Train>().backTrain = back;
+	}
+
+	void updateScore() {
+		int total = 1;
+		GameObject currentCart = gameObject;
+		while(currentCart.GetComponent<Train>().backTrain != null) {
+			currentCart = currentCart.GetComponent<Train>().backTrain;
+			total++;
+		}
+		player.score = total;
 	}
 }

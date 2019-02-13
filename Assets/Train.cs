@@ -7,6 +7,8 @@ public class Train : MonoBehaviour {
 
 	protected float detectionRadius = 0.1f;
 	protected int mapSize = 4;
+	protected int mapWidth = 4;
+	protected int mapLength = 2;
 
 	public Vector3 target;
 
@@ -83,8 +85,8 @@ public class Train : MonoBehaviour {
 	}
 
 	bool isInsideBounds(Vector3 pos) {
-		if (Mathf.Abs(pos.x) > mapSize * 5) return false;
-		if (Mathf.Abs(pos.z) > mapSize * 5) return false;
+		if (Mathf.Abs(pos.x) > mapSize * mapWidth) return false;
+		if (Mathf.Abs(pos.z) > mapSize * mapLength) return false;
 		return true;
 	}
 

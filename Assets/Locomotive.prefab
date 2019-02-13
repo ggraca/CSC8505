@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 114814164003381398}
   m_Layer: 0
   m_Name: Locomotive
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -299,6 +299,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
+  score: 1
 --- !u!114 &114819310094189628
 MonoBehaviour:
   m_ObjectHideFlags: 1
