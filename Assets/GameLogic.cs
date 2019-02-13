@@ -44,9 +44,13 @@ public class GameLogic : MonoBehaviour {
 	}
 
 	void Update() {
-		if (Input.GetKeyDown("r")) {
+		if (Input.GetKeyDown(KeyCode.Return)) {
 			Time.timeScale = 1;
-			SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+			SceneManager.LoadScene(1);
+		}
+		if (Input.GetKeyDown(KeyCode.Escape)) {
+			Time.timeScale = 1;
+			SceneManager.LoadScene(0);
 		}
 
 		timeLeft -= Time.deltaTime;
